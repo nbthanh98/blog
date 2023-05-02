@@ -1,0 +1,31 @@
+---
+title: Cấu hình health check ứng dụng Spring Boot với Kubernetes Probes
+date: '2022-12-01'
+tags: ['api', 'rest-api', 'springboot']
+series: ['k8s-spring-boot']
+draft: false
+authors: ['thanhnb']
+images: ['/static/images/ogps/k8s-springboot.png']
+summary: 'Trong bài viết này, chúng ta sẽ tìm hiểu cách cấu hình health check với Liveness, Readiness và Startup Probes trong Kubernetes.'
+index: 6
+---
+
+<TOCInline toc={props.toc} asDisclosure />
+
+## 1. Giới thiệu chung
+
+Ở bài [Service](/courses/k8s-spring-boot/service-trong-kubernetes) thì đối tượng Service sẽ đứng phía trước một nhóm các Pod (math labels) để nhận request và phân bổ request đến các Pod healthy đứng phía sau. Đối tượng Service thì không trực tiếp liến kết đến Pod vậy khi có request đến thì làm sao để Service biết được request đó sẽ được điều hướng đến Pod nào? Đối tượng Endpoint trong Kubernetes sẽ lưu trữ danh sách IP và Port của Pod healthy, khi có request đến thì Service sẽ chọn một IP và Port trong danh sách để điều hướng request đến. Danh sách IP và Port trong đối tượng Endpoint sẽ được cập nhật tự động khi thêm Pod mới hoặc bị xóa đi.
+
+Kubernetes có cung cấp cơ chế health check để giám sát các ứng dụng triển khai trên cụm Kubernetes có đang hoạt động hay không? Nếu Pod của ứng dụng nào đang lỗi hoặc chưa sẵn sàng để xử lý request thì Kubernetes sẽ điều hướng đến các Pod healthy khác của ứng dụng để tránh request bị lỗi. Trong bài viết này, chúng ta sẽ cùng tìm hiểu cơ chế health check trong Kubernetes và cách cấu hình với ứng dụng Spring Boot.
+
+## 2. Kubernetes Probe là gì?
+
+## 3. Tìm hiểu và cấu hình Readiness Probes với ứng dụng Spring Boot
+
+### Kubernetes Readiness Probes là gì?
+
+Kubernetes sử dụng readiness probe để xác định Pod của ứng dụng đã sẵn sàng nhận và xử lý traffic hay chưa? Nếu kết quả readiness probe trả về thành công có nghĩa là Pod của ứng dụng đã sẵn sàng nhận và xử lý request. Khi đó thì thông tin của Pod (IP và Port) sẽ được thêm vào đối tượng Endpoint và Service sẽ sử dụng các thông tin Pod bên trong Endpoint để điều hướng request đến Pod. Ngược lại thì thông tin của Pod sẽ bị xóa khỏi đối tượng Endpoint để tránh Service điều hướng đến Pod đang lỗi cho đến khi kết quả readiness probe trả về thành công.
+
+### Cấu hình Readiness Probes
+
+Spring Boot hỗ trợ
