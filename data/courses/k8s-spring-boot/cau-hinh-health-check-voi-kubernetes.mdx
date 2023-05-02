@@ -14,6 +14,7 @@ index: 6
 
 ## 1. Giới thiệu chung
 
+<<<<<<< HEAD
 Khi triển một khai ứng dụng ta luôn muốn ứng dụng hoạt động một cách trơn tru hoặc nếu có vấn đề thì được phát hiện và khắc phục sớm. Một trong những ưu điểm khi triển khai ứng dụng trên cụm Kubernetes là Kubernetes cung cấp cơ chế health check để giám sát các ứng dụng triển khai trên cụm Kubernetes có đang ở trạng thái tốt hay không?(trạng thái tốt ở đây không chỉ là Pod có running hay không mà còn là có khả năng nhận và phản hồi request hay không). Nếu Pod của ứng dụng nào đang lỗi hoặc chưa sẵn sàng để xử lý request thì Kubernetes sẽ điều hướng đến các Pod healthy khác của ứng dụng để tránh request bị lỗi.
 
 Trong bài viết này, chúng ta sẽ cùng tìm hiểu cơ chế health check trong Kubernetes và cách cấu hình với ứng dụng Spring Boot.
@@ -404,4 +405,22 @@ LOGGING RESPONSE-----------------------------------
 
 ## 5. Tổng kết
 
-Qua bài viết này chúng ta đã tìm hiểu và cấu hình health checks (Kubernetes probes) với ứng dụng Spring Boot. Cấu hình này cũng khá đơn giản nhưng cần xem xét ứng dụng và các tham số của Kubernetes Probes để cấu hình cho phù hợp. Ở bài viết sau chúng ta sẽ tìm hiểu về cách đóng gói ứng dụng cho Kubernetes sử dụng Helm Chart.
+# Qua bài viết này chúng ta đã tìm hiểu và cấu hình health checks (Kubernetes probes) với ứng dụng Spring Boot. Cấu hình này cũng khá đơn giản nhưng cần xem xét ứng dụng và các tham số của Kubernetes Probes để cấu hình cho phù hợp. Ở bài viết sau chúng ta sẽ tìm hiểu về cách đóng gói ứng dụng cho Kubernetes sử dụng Helm Chart.
+
+Ở bài [Service](/courses/k8s-spring-boot/service-trong-kubernetes) thì đối tượng Service sẽ đứng phía trước một nhóm các Pod (math labels) để nhận request và phân bổ request đến các Pod healthy đứng phía sau. Đối tượng Service thì không trực tiếp liến kết đến Pod vậy khi có request đến thì làm sao để Service biết được request đó sẽ được điều hướng đến Pod nào? Đối tượng Endpoint trong Kubernetes sẽ lưu trữ danh sách IP và Port của Pod healthy, khi có request đến thì Service sẽ chọn một IP và Port trong danh sách để điều hướng request đến. Danh sách IP và Port trong đối tượng Endpoint sẽ được cập nhật tự động khi thêm Pod mới hoặc bị xóa đi.
+
+Kubernetes có cung cấp cơ chế health check để giám sát các ứng dụng triển khai trên cụm Kubernetes có đang hoạt động hay không? Nếu Pod của ứng dụng nào đang lỗi hoặc chưa sẵn sàng để xử lý request thì Kubernetes sẽ điều hướng đến các Pod healthy khác của ứng dụng để tránh request bị lỗi. Trong bài viết này, chúng ta sẽ cùng tìm hiểu cơ chế health check trong Kubernetes và cách cấu hình với ứng dụng Spring Boot.
+
+## 2. Kubernetes Probe là gì?
+
+## 3. Tìm hiểu và cấu hình Readiness Probes với ứng dụng Spring Boot
+
+### Kubernetes Readiness Probes là gì?
+
+Kubernetes sử dụng readiness probe để xác định Pod của ứng dụng đã sẵn sàng nhận và xử lý traffic hay chưa? Nếu kết quả readiness probe trả về thành công có nghĩa là Pod của ứng dụng đã sẵn sàng nhận và xử lý request. Khi đó thì thông tin của Pod (IP và Port) sẽ được thêm vào đối tượng Endpoint và Service sẽ sử dụng các thông tin Pod bên trong Endpoint để điều hướng request đến Pod. Ngược lại thì thông tin của Pod sẽ bị xóa khỏi đối tượng Endpoint để tránh Service điều hướng đến Pod đang lỗi cho đến khi kết quả readiness probe trả về thành công.
+
+### Cấu hình Readiness Probes
+
+Spring Boot hỗ trợ
+
+> > > > > > > 12e740a... start health check
