@@ -28,13 +28,15 @@ Trong bài viết này, chúng ta sẽ cùng tìm hiểu cơ chế health check 
 
 Cấu hình sử dụng readiness probes để kiểm tra ứng dụng có đang sẵn sàng nhận và xử lý request hay không?. Khi kết quả readiness probes trả về KHÔNG thành công thì container chạy ứng dụng sẽ **KHÔNG** restart nhưng thông tin (IP và port) của Pod chứa container này sẽ bị xóa khỏi đối tượng [Endpoints](https://stackoverflow.com/questions/52857825/what-is-an-endpoint-in-kubernetes) nên lúc này Pod sẽ không nhận được request từ Service nữa cho đến khi kết quả readiness probes trả về thành công.
 
-Giả sử ứng dụng Spring Boot của chúng ta khi khởi chạy cần xử lý một số tác vụ như: kết nối đến nhiều Database, khởi tạo dữ liệu cho cache,... nên sẽ cần một vài phút để ứng dụng khởi chạy thành công và sẵn sàng xử lý request (tạm gọi là healthy). Trong khoảng thời gian này thì ta không muốn nhận request vì ứng dụng chưa healthy đến lúc này sẽ bị lỗi. Ứng dụng có thể cấu hình sử dụng readiness probes để chỉ nhận request khi kết quả readiness probes của container chạy ứng dụng trả về thành công và lúc này thì ứng dụng cũng đã healthy.
+Giả sử ứng dụng Spring Boot của ta khi khởi chạy cần xử lý một số tác vụ như: kết nối đến nhiều Database, khởi tạo dữ liệu cho cache,... nên sẽ cần một vài phút để ứng dụng khởi chạy thành công và sẵn sàng xử lý request (tạm gọi là healthy). Trong khoảng thời gian này thì ta không muốn nhận request vì ứng dụng chưa healthy đến lúc này sẽ bị lỗi. Ứng dụng có thể cấu hình sử dụng readiness probes để chỉ nhận request khi kết quả readiness probes của container chạy ứng dụng trả về thành công và lúc này thì ứng dụng cũng đã healthy.
 
 Bạn có thể tham khảo thêm về Readiness Probes tại [trang web chính thức của Kubernetes](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes).
 
 ### Kubernetes Liveness Probes là gì?
 
-Thông thường nếu container bị crash thì Kubernetes sẽ tự động thực hiện restart container. Nếu trường hợp ứng dụng có bugs (deadlock,..) làm ứng dụng không phản hồi được request nhưng cũng không gây ra crash container thì lúc này Pod chứa container vẫn ở trạng thái running nên Kubernetes sẽ không tự động restart container. Việc restart container khi ứng dụng ở trạng trên có thể giúp ứng dụng trở lại trạng thái tốt hơn mặc dù bugs vẫn còn ở đó. Kubernetes sẽ sử dụng liveness probes để kiểm tra container chạy ứng dụng có đang phản hồi bình thường hay không? Nếu kết quả liveness probes trả về mã lỗi khác 2xx hoặc 3xx thì sẽ thực hiện restart container.
+Thông thường nếu container bị crash thì Kubernetes sẽ tự động thực hiện restart container. Nếu trường hợp ứng dụng có bugs (Deadlock, Dead Loop,...) làm ứng dụng không phản hồi được request nhưng cũng không gây ra crash container thì lúc này Pod chứa container vẫn ở trạng thái running nên Kubernetes sẽ không tự động restart container. Việc restart container khi ứng dụng ở trạng trên có thể giúp ứng dụng trở lại trạng thái tốt hơn mặc dù bugs vẫn còn ở đó. Kubernetes sẽ sử dụng liveness probes để kiểm tra container ứng dụng có đang phản hồi bình thường hay không? Nếu kết quả liveness probes trả về mã lỗi khác 2xx hoặc 3xx thì sẽ thực hiện restart container.
+
+Giả sử ứng dụng Spring Boot của ta bị memory leak (rò rỉ bộ nhớ) thì nó sẽ quăng ra lỗi OutOfMemoryErrors làm ứng dụng không xử lý request được nữa, nhưng ứng dụng cũng không crash mà vẫn tiếp tục chạy. Trường hợp này việc restart container ứng dụng có thể giúp ứng dụng trở lại trạng thái tốt hơn mặc dù bugs memory leak vẫn ở đó. Nếu cấu hình sử dụng liveness probes để kiểm tra container ứng dụng có đang phản hồi bình thường hay không? sẽ hữu ích trong trường hợp này.
 
 Bạn có thể tham khảo thêm về Liveness Probes tại [trang web chính thức của Kubernetes](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes).
 
@@ -46,7 +48,7 @@ Bạn có thể tham khảo thêm về Startup Probes tại [trang web chính th
 
 ## 4. Cấu hình sử dụng Kubernetes Probes với Spring Boot
 
-Đối với ứng dụng Spring Boot có thể xem xét sử dụng [Spring Boot Actuator](https://docs.spring.io/spring-boot/docs/current/reference/html/actuator.html) để giám sát ứng dụng. Spring Boot Actuator cũng có một số đầu API để lấy thông tin trạng thái ứng dụng tại thời điểm gọi. Để sử dụng Spring Boot Actuator thì cần thêm spring-boot-actuator dependency vào file pom.xml của ứng dụng.
+Đối với ứng dụng Spring Boot có thể xem xét sử dụng [Spring Boot Actuator](https://docs.spring.io/spring-boot/docs/current/reference/html/actuator.html) để giám sát ứng dụng. Spring Boot Actuator có một số đầu API để lấy thông tin trạng thái ứng dụng tại thời điểm gọi. Để sử dụng Spring Boot Actuator thì cần thêm spring-boot-actuator dependency vào file pom.xml của ứng dụng.
 
 ```xml:students/pom.xml
 <dependency>
@@ -401,3 +403,5 @@ LOGGING RESPONSE-----------------------------------
 ```
 
 ## 5. Tổng kết
+
+Qua bài viết này chúng ta đã tìm hiểu và cấu hình health checks (Kubernetes probes) với ứng dụng Spring Boot. Cấu hình này cũng khá đơn giản nhưng cần xem xét ứng dụng và các tham số của Kubernetes Probes để cấu hình cho phù hợp. Ở bài viết sau chúng ta sẽ tìm hiểu về cách đóng gói ứng dụng cho Kubernetes sử dụng Helm Chart.
