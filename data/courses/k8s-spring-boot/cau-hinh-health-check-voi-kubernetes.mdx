@@ -22,7 +22,7 @@ Trong bài viết này, chúng ta sẽ cùng tìm hiểu cơ chế health check 
 
 Để kiểm tra một container bên trong Pod có healthy và sẵn sàng để nhận request hay không thì Kubernetes có cung cấp một cơ chế health checks dùng để giám sát trạng thái của các container. Kubernetes Probes (health checks) cung cấp ba loại sau: Startup Probes, Readiness Probes và Liveness Probes. Bằng những kết quả của quá trình health check thì Kubernetes sẽ đưa ra các quyết định như: có nên restart container hay không? có nên ngừng hoặc tiếp tục nhận request hay không?. Cơ chế health checks trong Kubernetes hỗ trợ thực hiện bằng một số cách như: exec command, gRPC, httpGet, tcpSocket. Bài viết này mình sẽ sử dụng httpGet để thực hiện health checks cho ứng dụng Spring Boot.
 
-## 3. Các loại của cơ chế health check (Kubernetes Probes) trong Kubernetes
+## 3. Một số cơ chế health check (Kubernetes Probes) trong Kubernetes
 
 ### Kubernetes Readiness Probes là gì?
 
