@@ -1,0 +1,78 @@
+---
+title: Tìm hiểu và triển khai ứng dụng spring boot với Helm chart.
+date: '2022-12-10'
+tags: ['api', 'rest-api', 'springboot', 'kubernetes']
+series: ['k8s-spring-boot']
+draft: false
+authors: ['thanhnb']
+images: ['/static/images/ogps/k8s-springboot.png']
+summary: 'Trong bài này chúng ta sẽ cùng nhau tìm hiểu và triển khai ứng dụng với Helm Chart.'
+index: 7
+---
+
+<TOCInline toc={props.toc} asDisclosure />
+
+## 1. Giới thiệu chung
+
+Khi triển khai ứng dụng trên Kubernetes, ta cần định nghĩa các Kuberentes resource như: Deployment, Service,... bằng cách tạo ra các file cấu hình dạng YAML. Thực tế các hệ thống thường có nhiều service và các service này sẽ được triển khai trên nhiều môi trường khác nhau như: dev, staging, prod,.. để phục vụ cho quá trình phát triển. Trong bài viết này chúng ta sẽ tìm hiểu cách để quản lý các ứng dụng.
+
+## 2. Helm chart là gì?
+
+![Hình mô tả Helm chart](/static/images/assets/k8s-spring-helm1.png)
+
+_Credit: Internet_
+
+Helm (opensource project) là package manager cho Kubernetes giúp đơn giản hóa việc triển khai và quản lý ứng dụng trên cụm Kubernetes. Helm đóng gói các file cấu hình (Kubernetes YAML manifest) như: deployment, service, configMap,... cần thiết để triển khai ứng dụng vào thứ gọi là "Chart", giúp quản lý các file cấu hình dễ dàng và có cấu trúc.
+
+Helm giúp "template hóa" tách biệt giữa Kubernetes YAML manifest với tham số cấu hình, việc này giúp chúng ta có thể tái sử dụng chart khi triển khai ứng dụng ở các môi trường khác nhau (sẽ điều chỉnh các tham số cấu hình cho phù với môi trường triển khai). Helm cũng cung cấp một số các command giúp triển khai ứng dụng trên Kubernetes dễ dàng hơn.
+
+Bạn có thể xem thêm về Helm [tại trang web chính thức của Helm](https://helm.sh/docs/).
+
+## 3. Triển khai ứng dụng với Helm.
+
+### Cài đặt Helm
+
+```sh
+curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+chmod 700 get_helm.sh
+./get_helm.sh
+
+# Khi gõ command "helm version" để kiểm tra việc cài đặt Helm.
+helm version
+version.BuildInfo{Version:"v3.13.1", GitCommit:"3547a4b5bf5edb5478ce352e18858d8a552a4110", GitTreeState:"clean", GoVersion:"go1.20.8"}
+```
+
+Bạn có thể tham khảo cài đặt Helm [tại trang web chính thức của Helm](https://helm.sh/docs/intro/install/).
+
+### Triển khai ứng dụng SpringBoot với Helm Chart
+
+1. Sử dụng command `helm create <tên chart>` để tạo helm chart.
+
+```shell
+helm create students-service
+```
+
+Sau khi tạo helm chart thành công thì nó sẽ có cấu trúc như sau:
+
+```shell
+students-service/
+├── charts
+├── Chart.yaml
+├── templates
+│   ├── deployment.yaml
+│   ├── _helpers.tpl
+│   ├── hpa.yaml
+│   ├── ingress.yaml
+│   ├── NOTES.txt
+│   ├── serviceaccount.yaml
+│   ├── service.yaml
+│   └── tests
+│     └── test-connection.yaml
+└── values.yaml
+
+3 directories, 10 files
+```
+
+Một số thành phần trong helm chart:
+
+- **templates**: Chứa tất cả các file template cấu hình cần thiết để ứng dụng có thể chạy trên cụm Kubernetes. Trên là các file template mặc định khi tạo mới chart, bạn có thể thêm (vd: thêm configMap, secret,...) hoặc bớt khi triển khai ứng dụng.
