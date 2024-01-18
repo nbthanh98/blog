@@ -1,0 +1,59 @@
+---
+title: Đóng gói ứng dụng spring boot với Helm
+date: '2022-12-01'
+tags: ['api', 'rest-api', 'springboot']
+series: ['k8s-spring-boot']
+draft: false
+authors: ['thanhnb']
+images: ['/static/images/ogps/k8s-springboot.png']
+summary: 'Trong bài viết này, chúng ta sẽ tìm hiểu cách đóng gói ứng dụng spring boot với Helm.'
+index: 7
+---
+
+<TOCInline toc={props.toc} asDisclosure />
+
+## 1. Giới thiệu chung
+Trong bài viết này chúng ta sẽ cùng nhau tìm hiểu về Helm, cấu trúc Helm Chart và các triển khai ứng dụng trên cụm Kubernetes với Helm.
+
+## 2. Cài đặt Helm
+Helm hiện tại đang có hai phiên bản: [Helm2](https://v2.helm.sh/) và [Helm3](https://helm.sh/). Trong bài viết này mình sẽ sử dụng Helm3, bạn có thể  cài đặt theo hướng dẫn tại [trang web chính thức của Helm3](https://helm.sh/docs/intro/install/).
+```shell
+curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+chmod 700 get_helm.sh
+./get_helm.sh
+
+# Kiểm tra phiên bản Helm
+helm version
+version.BuildInfo{Version:"v3.14.0", GitCommit:"3fc9f4b2638e76f26739cd77c7017139be81d0ea", GitTreeState:"clean", GoVersion:"go1.21.5"}
+```
+
+## 3. Tìm hiểu và triển khai ứng dụng với Helm
+
+### 3.1. Helm là gì?
+Helm là package manager (công cụ triển khai - CLI tool) giúp đơn giản hóa việc triển khai và quản lý (install, upgrade hoặc uninstall) ứng dụng trên Kubernetes. Sử dụng Helm bạn có thể đóng gói các file cấu hình như: Deployment, Service,.. cần thiết để triển khai ứng dụng trên Kubernetes thành một package gọi là Helm Chart. Helm Chart giống như template cấu hình của ứng dụng có thể tái sử dụng khi triển khai trên nhiều môi trường khác nhau.
+
+Bạn có thể tham khảo thêm về Helm tại [trang web chính thức của Helm](https://helm.sh/docs/).
+
+### 3.2. Helm Chart là gì?
+Helm chart là package (đơn vị triển khai được quản lý bởi Helm) giống như template chứa tất cả các file cấu hình để triển khai ứng dụng, một Helm chart có cấu trúc như sau:
+
+```shell
+student-service/
+├── charts
+├── Chart.yaml
+├── templates
+│   ├── deployment.yaml
+│   ├── _helpers.tpl
+│   ├── hpa.yaml
+│   ├── ingress.yaml
+│   ├── NOTES.txt
+│   ├── serviceaccount.yaml
+│   ├── service.yaml
+│   └── tests
+│       └── test-connection.yaml
+└── values.yaml
+```
+- **Chart.yaml**: File này chứa thông tin về chart như: version, tên, mô tả,...
+- **values.yaml**: Chứa các tham số cấu hình cho các mẫu (template) trong thư mục **templates** như: image name, image tag, replicas,.. Có thể  tạo ra nhiều file values.yaml cho các môi trường khác nhau ví dụ: dev-values.yaml, uat-values.yaml, prod-values.yaml,.. Khi triển khai Helm Chart thì có thể chỉ định file tương ứng với môi trường đang triển khai.
+- **templates**: Chứa các mẫu (template) cấu hình Kuberntes resource (Deployment, Service,...) mà Helm sẽ triển khai khi triển khai Chart. Các template này thường chứa các biến, hàm để khi triển khai Helm sẽ lấy các tham số được định nghĩa trong file values.yaml (mặc định) tạo ra các cấu hình linh hoạt và có thể tái sử dụng. Helm tạo sẵn thư mục templates mặc định, chúng ta có thể thêm, sửa hoặc xóa các template để phù hợp với ứng dụng triển khai.
+- **charts**: Có thể thêm các chart vào bên trong thư mục này nếu triển khai chart chính cần phụ thuộc vào chúng. Mặc định thư mục này sẽ trống (empty).
